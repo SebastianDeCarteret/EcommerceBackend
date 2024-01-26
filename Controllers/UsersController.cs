@@ -1,12 +1,8 @@
 ﻿using EcommerceBackend.Data;
 using EcommerceBackend.Models;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace EcommerceBackend.Controllers
 {
@@ -25,11 +21,17 @@ namespace EcommerceBackend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUser()
         {
-            return await _context.User
+            var users = await _context.User
                 .Include(user => user.Basket)
                 .Include(user => user.Basket.BasketItems)
                 .Include(user => user.Orders)
                 .ToListAsync();
+            foreach (var user in users)
+            {
+                MakeUserPasswordEnryptedIfNotAlready(user);
+            }
+
+            return users;
         }
 
         // GET: api/Users/5
@@ -42,10 +44,13 @@ namespace EcommerceBackend.Controllers
                 .ToListAsync();
             var user = _.Find(user => user.Id == id);
 
+
             if (user == null)
             {
                 return NotFound();
             }
+
+            MakeUserPasswordEnryptedIfNotAlready(user);
 
             return user;
         }
@@ -59,6 +64,8 @@ namespace EcommerceBackend.Controllers
             {
                 return BadRequest();
             }
+
+            user.Password = HashPassword(user);
 
             _context.Entry(user).State = EntityState.Modified;
 
@@ -85,18 +92,27 @@ namespace EcommerceBackend.Controllers
         public async Task<ActionResult<User>> AuthUser(string username, string password)
         {
             //var doesMatch = _context.User.ToList().Exists(user => user.Username == username && user.Password == password);
-            var user = _context.User.ToList().Find(user => user.Username == username && user.Password == password);
+            var users = await _context.User.ToListAsync();
+            var user = users.Find(user => user.Username == username);
+            var passwordHasher = new PasswordHasher<User>();
 
-            if (user != null)
+            if (user == null)
             {
-                //user.IsLoggedIn = true;
-                //await _context.SaveChangesAsync();
+                return NotFound();
+            }
+
+            MakeUserPasswordEnryptedIfNotAlready(user);
+
+            if (passwordHasher.VerifyHashedPassword(user, user.Password, password) == PasswordVerificationResult.Success)
+            {
                 return CreatedAtAction("GetUser", new { id = user.Id }, user);
             }
             else
             {
-                return NotFound();
+                return
+                BadRequest("wrong password");
             }
+
 
         }
 
@@ -105,7 +121,10 @@ namespace EcommerceBackend.Controllers
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(User user)
         {
-            _context.User.Add(user);
+
+            user.Password = HashPassword(user);
+
+            await _context.User.AddAsync(user);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetUser", new { id = user.Id }, user);
@@ -130,6 +149,28 @@ namespace EcommerceBackend.Controllers
         private bool UserExists(int id)
         {
             return _context.User.Any(e => e.Id == id);
+        }
+
+        private async void MakeUserPasswordEnryptedIfNotAlready(User user)
+        {
+            //if (!(user.Password.First().ToString() == "A" && user.Password.Last().ToString() == "=")) // encrypt password if not already
+            //{
+            //    var passwordHasher = new PasswordHasher<User>();
+            //    user.Password = passwordHasher.HashPassword(user, user.Password);
+            //    await _context.SaveChangesAsync();
+            //}
+            if (!(user.Password.StartsWith().First().ToString() == "A" && user.Password.Last().ToString() == "=")) // encrypt password if not already
+            {
+                var passwordHasher = new PasswordHasher<User>();
+                user.Password = passwordHasher.HashPassword(user, user.Password);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        private string HashPassword(User user)
+        {
+            var passwordHasher = new PasswordHasher<User>();
+            return passwordHasher.HashPassword(user, user.Password);
         }
     }
 }
