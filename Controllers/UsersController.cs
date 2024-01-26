@@ -151,19 +151,13 @@ namespace EcommerceBackend.Controllers
             return _context.User.Any(e => e.Id == id);
         }
 
-        private async void MakeUserPasswordEnryptedIfNotAlready(User user)
+        private void MakeUserPasswordEnryptedIfNotAlready(User user)
         {
-            //if (!(user.Password.First().ToString() == "A" && user.Password.Last().ToString() == "=")) // encrypt password if not already
-            //{
-            //    var passwordHasher = new PasswordHasher<User>();
-            //    user.Password = passwordHasher.HashPassword(user, user.Password);
-            //    await _context.SaveChangesAsync();
-            //}
-            if (!(user.Password.StartsWith().First().ToString() == "A" && user.Password.Last().ToString() == "=")) // encrypt password if not already
+            if (!(user.Password.StartsWith("AQAAAAIAAYagAAAA") && user.Password.EndsWith("==")))
             {
                 var passwordHasher = new PasswordHasher<User>();
                 user.Password = passwordHasher.HashPassword(user, user.Password);
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
             }
         }
 
