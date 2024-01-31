@@ -1,9 +1,4 @@
-﻿using EcommerceBackend.Models;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace EcommerceBackend.Data
 {
@@ -20,5 +15,6 @@ namespace EcommerceBackend.Data
         public DbSet<EcommerceBackend.Models.Basket> Basket { get; set; } = default!;
         public DbSet<EcommerceBackend.Models.Review> Review { get; set; } = default!;
         public DbSet<EcommerceBackend.Models.Order> Order { get; set; } = default!;
+        public DbSet<EcommerceBackend.Models.Session> Session { get; set; } = default!;
     }
 }

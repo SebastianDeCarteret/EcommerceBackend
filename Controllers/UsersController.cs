@@ -36,13 +36,13 @@ namespace EcommerceBackend.Controllers
 
         // GET: api/Users/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
+        public async Task<ActionResult<User>> GetUser(string id)
         {
             var _ = await _context.User
                 .Include(user => user.Basket)
                 .Include(user => user.Orders)
                 .ToListAsync();
-            var user = _.Find(user => user.Id == id);
+            var user = _.Find(user => user.Auth0Id == id);
 
 
             if (user == null)

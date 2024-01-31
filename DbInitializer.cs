@@ -1,7 +1,5 @@
 ﻿using EcommerceBackend.Data;
-using EcommerceBackend.Migrations;
 using EcommerceBackend.Models;
-using System.Drawing;
 
 namespace EcommerceBackend
 {
@@ -59,22 +57,31 @@ namespace EcommerceBackend
             ]);
 
             await dbContext.AddRangeAsync([
+                //new User
+                //{
+                //    FirstName = "Sebastian",
+                //    LastName = "De Carteret",
+                //    Username = "seb",
+                //    Gender = "male",
+                //    Password = "seb"
+                //},
+                //new User
+                //{
+                //    FirstName = "Bobby",
+                //    LastName = "Clive",
+                //    Username = "bob",
+                //    Gender = "male",
+                //    Password = "bob"
+                //}
                 new User
                 {
                     FirstName = "Sebastian",
                     LastName = "De Carteret",
                     Username = "seb",
                     Gender = "male",
-                    Password = "seb"
+                    Password = "seb",
+                    Auth0Id = "auth0|65ba279af55101b1072f76e8"
                 },
-                new User
-                {
-                    FirstName = "Bobby",
-                    LastName = "Clive",
-                    Username = "bob",
-                    Gender = "male",
-                    Password = "bob"
-                }
 
             ]);
             //await dbContext.AddRangeAsync([
